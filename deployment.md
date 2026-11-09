@@ -2,8 +2,8 @@
 
 ## 1. Project Overview & Repository
 - **Application Name:** ThreadFlow (Company A Tiruppur Knitwear Exporter Delay Warning & TNA Platform)
-- **GitHub Repository:** `<YOUR_GITHUB_REPO_URL>` (Replace with your actual public repository URL)
-- **Live Demo:** `http://localhost:3000` (or hosted Vercel link if deployed)
+- **GitHub Repository:** https://github.com/thanishmamilla/knitwear
+- **Live Demo:** https://knitwear-git-main-mamilla-thanish-kumars-projects.vercel.app/
 
 ---
 

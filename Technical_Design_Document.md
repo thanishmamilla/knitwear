@@ -2,7 +2,7 @@
 **Project:** ThreadFlow — Production Order Tracking, Run-Rate Delay Warning & TNA SaaS  
 **Client:** Company A (Tiruppur Knitwear Exporter to UK & EU Buyers)  
 **GitHub Repository:** `https://github.com/thanishmamilla/knitwear`  
-**Live Demo:** `http://localhost:3000`  
+**Live Demo:** `https://knitwear-git-main-mamilla-thanish-kumars-projects.vercel.app/`  
 **Author:** Software Engineering Candidate  
 **Date:** November 2026  
 

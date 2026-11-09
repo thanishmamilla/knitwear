@@ -114,7 +114,8 @@ def generate_pdf():
     # Title & Metadata Header
     story.append(Paragraph("Technical Design Document (TDD)", title_style))
     story.append(Paragraph("<b>Project:</b> ThreadFlow (Production Order Tracking & Early Delay Warning SaaS)<br/>"
-                           "<b>Client:</b> Company A, Tiruppur &bull; <b>GitHub:</b> &lt;YOUR_GITHUB_REPO_URL&gt; &bull; <b>Live Demo:</b> http://localhost:3000", meta_style))
+                           "<b>Client:</b> Company A, Tiruppur &bull; <b>GitHub:</b> https://github.com/thanishmamilla/knitwear<br/>"
+                           "<b>Live Demo:</b> https://knitwear-git-main-mamilla-thanish-kumars-projects.vercel.app/", meta_style))
     story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor('#cbd5e1'), spaceBefore=0, spaceAfter=8))
 
     # 1. Executive Summary & Problem Formulation
