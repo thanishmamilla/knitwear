@@ -1,0 +1,160 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  role      String   // "MERCHANDISER", "SUPERVISOR", "BUYER"
+  buyerId   String?
+  buyer     Buyer?   @relation(fields: [buyerId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Buyer {
+  id           String   @id @default(cuid())
+  name         String   // e.g. "Company B (UK)", "Company C (Germany)"
+  code         String   @unique // e.g. "COMPANY_B", "COMPANY_C"
+  country      String   // "UK", "Germany"
+  contactEmail String?
+  orders       Order[]
+  users        User[]
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Unit {
+  id            String        @id @default(cuid())
+  name          String        // "Own Unit A", "Own Unit B", "Own Unit C", "Printing Vendor", "Washing Vendor"
+  code          String        @unique
+  type          String        // "OWN", "SUBCONTRACT"
+  dailyCapacity Int           @default(1500)
+  orders        Order[]
+  dailyUpdates  DailyUpdate[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Order {
+  id                 String               @id @default(cuid())
+  poNumber           String               @unique // e.g. "B-PO-88213"
+  buyerId            String
+  buyer              Buyer                @relation(fields: [buyerId], references: [id])
+  style              String               // "Men's crew neck tee"
+  color              String               // "Navy"
+  unitId             String
+  unit               Unit                 @relation(fields: [unitId], references: [id])
+  totalQuantity      Int                  // e.g. 12000
+  exFactoryDate      DateTime
+  currentStage       String               @default("Cutting")
+  currentProducedQty Int                  @default(0)
+  riskStatus         String               @default("GREEN") // "GREEN", "AMBER", "RED"
+  sizeBreakdowns     OrderSizeBreakdown[]
+  milestones         Milestone[]
+  dailyUpdates       DailyUpdate[]
+  warnings           Warning[]
+  auditLogs          AuditLog[]
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+}
+
+model OrderSizeBreakdown {
+  id       String @id @default(cuid())
+  orderId  String
+  order    Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  size     String // "S", "M", "L", "XL", "XXL"
+  quantity Int
+}
+
+model Milestone {
+  id            String    @id @default(cuid())
+  orderId       String
+  order         Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  stage         String    // "Cutting", "Printing", "Stitching", "Washing", "Finishing", "Packing"
+  sequence      Int       // 1 to 6
+  targetDate    DateTime
+  completedDate DateTime?
+  status        String    @default("PENDING") // "PENDING", "IN_PROGRESS", "COMPLETED", "DELAYED"
+  progressQty   Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model DailyUpdate {
+  id                String      @id @default(cuid())
+  orderId           String
+  order             Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  unitId            String
+  unit              Unit        @relation(fields: [unitId], references: [id])
+  stage             String
+  quantityCompleted Int
+  photoUrl          String?
+  voiceUrl          String?
+  rawNote           String?
+  language          String      @default("ta") // "ta", "en"
+  supervisorName    String      @default("Supervisor")
+  source            String      @default("ONLINE") // "ONLINE", "OFFLINE_SYNC"
+  aiAnalysis        AIAnalysis?
+  createdAt         DateTime    @default(now())
+}
+
+model AIAnalysis {
+  id                String      @id @default(cuid())
+  dailyUpdateId     String      @unique
+  dailyUpdate       DailyUpdate @relation(fields: [dailyUpdateId], references: [id], onDelete: Cascade)
+  originalNote      String
+  translation       String
+  predictedCategory String      // "Machine Breakdown", "Material Delay", "Quality Issue", "Labour Shortage", "Printing Delay", "Washing Delay", "Approval Pending", "Other"
+  confidence        Float       @default(0.85)
+  finalCategory     String
+  reviewedBy        String?
+  reviewedAt        DateTime?
+  isOverridden      Boolean     @default(false)
+}
+
+model Warning {
+  id                 String    @id @default(cuid())
+  orderId            String
+  order              Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  severity           String    // "AMBER", "RED"
+  message            String
+  reasonCategory     String?
+  remainingQty       Int
+  daysLeft           Int
+  requiredRate       Float
+  actualRate         Float
+  difference         Float
+  projectedDelayDays Float
+  isApprovedForBuyer Boolean   @default(false)
+  approvedBy         String?
+  approvedAt         DateTime?
+  createdAt          DateTime  @default(now())
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  field     String   // e.g. "exFactoryDate", "Milestone: Stitching"
+  oldValue  String
+  newValue  String
+  changedBy String
+  reason    String
+  timestamp DateTime @default(now())
+}
+
+model OfflineSync {
+  id           String   @id @default(cuid())
+  clientSyncId String   @unique
+  payloadJson  String
+  status       String   @default("SUCCESS")
+  error        String?
+  syncedAt     DateTime @default(now())
+}
